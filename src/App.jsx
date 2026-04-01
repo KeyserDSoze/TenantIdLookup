@@ -1,10 +1,17 @@
 import { useState, useRef } from 'react'
 import './App.css'
 
-function extractDomain(email) {
-  const parts = email.trim().split('@')
-  if (parts.length !== 2 || !parts[1]) return null
-  return parts[1].toLowerCase()
+function extractDomain(input) {
+  const trimmed = input.trim()
+  if (!trimmed) return null
+  // If it contains @, treat as email and take the part after @
+  if (trimmed.includes('@')) {
+    const parts = trimmed.split('@')
+    const domain = parts[parts.length - 1]
+    return domain || null
+  }
+  // Otherwise treat the whole input as a domain; must contain at least one dot
+  return trimmed.includes('.') ? trimmed.toLowerCase() : null
 }
 
 function extractTenantId(issuer) {
@@ -29,7 +36,7 @@ export default function App() {
 
     const domain = extractDomain(email)
     if (!domain) {
-      setError('Enter a valid email address.')
+      setError('Enter a valid email address or domain (e.g. contoso.com).')
       return
     }
 
@@ -85,15 +92,15 @@ export default function App() {
 
       <main>
         <form className="lookup-form" onSubmit={handleLookup} noValidate>
-          <label htmlFor="email-input">Email address</label>
+          <label htmlFor="email-input">Email address or domain</label>
           <div className="input-row">
             <input
               id="email-input"
               ref={inputRef}
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="user@contoso.com"
+              placeholder="user@contoso.com or contoso.com"
               autoComplete="off"
               spellCheck={false}
               disabled={loading}
